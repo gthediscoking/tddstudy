@@ -27,7 +27,7 @@
 *.lib
 
 # Executables
-/tddstudy_test
+/tddstudy_tests
 *.exe
 *.out
 *.app
