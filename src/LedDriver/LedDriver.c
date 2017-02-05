@@ -1,4 +1,5 @@
 #include "LedDriver.h"
+#include <stdbool.h>
 
 // Internal variables and functions
 static uint16_t * ledsAddress;	// LED操作用
@@ -7,9 +8,14 @@ enum{
 	ALL_LEDS_ON  = 0xffff,		// "~0"ではコンパイル・エラー
 	ALL_LEDS_OFF = 0x0000		// ~(ALL_LEDS_ON)ではコンパイル・エラー
 };
+enum{
+	FIRST_LED =  1,
+	LAST_LED  = 16
+};
 
 static uint16_t convertLedNumberToBit(int ledNumber);
 static void updateHardware(void);
+static bool isLedNumberOutOfBounds(int ledNumber);
 
 // Implementation of functions
 void LedDriver_Create(uint16_t * address)
@@ -27,6 +33,7 @@ void LedDriver_Destroy(void)
 void LedDriver_TurnOn(int ledNumber)
 {
 //	*ledsAddress = 1;	// hard coat
+	if(isLedNumberOutOfBounds(ledNumber))	return;
 	ledsImage |= convertLedNumberToBit(ledNumber);	//LED制御レジスタに対するbit	操作
 	updateHardware();
 }
@@ -40,6 +47,7 @@ void LedDriver_TurnAllOn(void)
 void LedDriver_TurnOff(int ledNumber)
 {
 //	*ledsAddress = 0;	// hard coat
+	if(isLedNumberOutOfBounds(ledNumber))	return;
 	ledsImage &= ~(convertLedNumberToBit(ledNumber));	//LED制御レジスタに対するbit	操作
 	updateHardware();
 }
@@ -53,4 +61,9 @@ static uint16_t convertLedNumberToBit(int ledNumber)
 static void updateHardware(void)
 {
 	*ledsAddress = ledsImage;
+}
+
+static bool isLedNumberOutOfBounds(int ledNumber)
+{
+	return (ledNumber < FIRST_LED) || (ledNumber > LAST_LED);
 }
